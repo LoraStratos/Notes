@@ -11,8 +11,12 @@ Vue.component('columns', {
             newColumn: [],
             inProgressColumn: [],
             completedColumn: [],
-            
-            
+            maxCards: {
+                newColumn: 3,
+                inProgressColumn: 5,
+                completedColumn: Infinity
+            },
+            isFirstColumnLocked: false
         }
     },
     created() {
@@ -20,7 +24,14 @@ Vue.component('columns', {
     },
     methods: {
         addCard(column, customTitle) {
-            
+            if (this[column].length >= this.maxCards[column]) {
+                alert(`Достигнуто максимальное количество карточек в столбце "${this.getColumnTitle(column)}".`);
+                return;
+            }
+            if (column !== 'newColumn') {
+                alert(`Можно добавлять заметки только в столбец "Новые".`);
+                return;
+            }
             const newCard = {
                 title: customTitle,
                 items: [
@@ -70,8 +81,6 @@ Vue.component('columns', {
         moveCardToInProgress(card) {
             const index = this.newColumn.indexOf(card);
             if (index !== -1) {
-                
-
                 this.newColumn.splice(index, 1);
                 this.inProgressColumn.push(card);
                 this.saveToLocalStorage();
@@ -89,6 +98,13 @@ Vue.component('columns', {
             }
         },
         
+    },
+    computed: {
+        maxCardsInColumn() {
+            if (this.inProgressColumn.length >= this.maxCards.inProgressColumn) {
+                return true;
+            }
+        }
     }
 });
 
@@ -97,6 +113,7 @@ Vue.component('column', {
     template: `
         <div class="column">
             <h2>{{ title }}</h2>
+            <p v-if="maxCardsInColumn">Достигнуто максимальное количество карточек</p>
             <form action="" v-if="title === 'Новые'">
                 <input type="text" v-model="customTitle">
                 <button class="btn" v-if="title === 'Новые'" @click="addCardWithCustomTitle">Добавить заметку</button>
