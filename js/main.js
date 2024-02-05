@@ -16,7 +16,8 @@ Vue.component('columns', {
                 inProgressColumn: 5,
                 completedColumn: Infinity
             },
-            locked: false
+            locked: false,
+            isDesabled: false,
         }
     },
     created() {
@@ -159,14 +160,14 @@ Vue.component('column', {
 });
 
 Vue.component('card', {
-    props: ['card', 'isFirstColumnLocked'],
+    props: ['card', 'isFirstColumnLocked', 'inProgressColumn', 'isDesabled'],
     template: `
       <div class="card">
       <h3>{{ card.title }}</h3>
       <ul>
         <li v-for="(item, index) in card.items" :key="index">
-          <input type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="card.status === 'Done' || isFirstColumnLocked">
-          <input type="text" v-model="item.text" @input="saveToLocalStorage" :disabled="!item.editing || card.status === 'Done' || (card.status === 'В процессе' && isFirstColumnLocked)">
+          <input type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="isDesabled || card.status === 'Done' || isFirstColumnLocked">
+          <input type="text" v-model="item.text" @input="saveToLocalStorage" :disabled="isDesabled || !item.editing || card.status === 'Done' || (card.status === 'В процессе' && isFirstColumnLocked)">
         </li>
       </ul> 
       <button class="btn" v-if="card.status !== 'Done' && !isFirstColumnLocked" @click="removeCard">Delete note</button>
@@ -187,6 +188,7 @@ Vue.component('card', {
             const completedItems = this.card.items.filter(item => item.completed).length;
             const totalItems = this.card.items.length;
             const completionPercentage = (completedItems / totalItems) * 100;
+
             if (completionPercentage > 50 ) {
                 this.card.status = 'In process';
                 this.$emit('move-card-to-in-progress', this.card);
@@ -205,14 +207,18 @@ Vue.component('card', {
             }
         }
     },
-    watch: {
-        'card.items': {
-            deep: true,
-            handler() {
-                this.saveToLocalStorage();
+    computed: {
+        maxBlock() {
+            const completedItems = this.card.items.filter(item => item.completed).length;
+            const totalItems = this.card.items.length;
+            const completionPercentage = (completedItems / totalItems) * 100;
+            if (this.inProgressColumn.length === 5 && completionPercentage < 50) {
+                return !this.isDesabled;
+            } else {
+                return this.isDesabled;
             }
         }
-    },
+    }   
 });
 
 new Vue({
