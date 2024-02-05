@@ -16,11 +16,12 @@ Vue.component('columns', {
                 inProgressColumn: 5,
                 completedColumn: Infinity
             },
-            isFirstColumnLocked: false
+            locked: false
         }
     },
     created() {
         this.loadFromLocalStorage();
+        this.checkLock();
     },
     methods: {
         addCard(column, customTitle) {
@@ -28,14 +29,19 @@ Vue.component('columns', {
                 alert(`Достигнуто максимальное количество карточек в столбце "${this.getColumnTitle(column)}".`);
                 return;
             }
+            if (this.inProgressColumn.length >= this.maxCards.inProgressColumn) {
+                alert('Столбец "In process" уже содержит максимальное количество карточек.');
+                return;
+            }
             const newCard = {
-                title: customTitle,
+                title: customTitle || 'New note',
                 items: [
                     { text: '', completed: false, editing: true },
                     { text: '', completed: false, editing: true },
                     { text: '', completed: false, editing: true }
                 ],
-                status: 'New'
+                status: 'New',
+                locked: false,
             };
             this[column].push(newCard);
             this.saveToLocalStorage();
@@ -43,6 +49,7 @@ Vue.component('columns', {
         removeCard(column, cardIndex) {
             this[column].splice(cardIndex, 1);
             this.saveToLocalStorage();
+            this.checkLock();
         },
         saveToLocalStorage() {
             localStorage.setItem('todo-columns', JSON.stringify({
@@ -86,7 +93,7 @@ Vue.component('columns', {
                 this.inProgressColumn.push(card);
                 this.saveToLocalStorage();
                 if (this.inProgressColumn.length >= this.maxCards.inProgressColumn) {
-                    this.lockFirstColumn();
+                    this.checkLock();
                 }
             }
         },
@@ -97,15 +104,22 @@ Vue.component('columns', {
                 this.completedColumn.push(card);
                 this.saveToLocalStorage();
             }
+            this.checkLock();
         },
-        lockFirstColumn() {
-            this.isFirstColumnLocked = true;
+        checkLock() {
+            if (this.inProgressColumn.length >= this.maxCards.inProgressColumn) {
+                this.locked = true;
+            } else {
+                this.locked = false;
+            }
+            this.newColumn.forEach(card => card.locked = this.locked);
         }
+        
     }
 });
 
 Vue.component('column', {
-    props: ['title', 'cards'],
+    props: ['title', 'cards', 'locked'],
     template: `
         <div class="column">
             <h2>{{ title }}</h2>
@@ -173,13 +187,16 @@ Vue.component('card', {
             const completedItems = this.card.items.filter(item => item.completed).length;
             const totalItems = this.card.items.length;
             const completionPercentage = (completedItems / totalItems) * 100;
-
-            if (completionPercentage >= 100) {
-                this.card.status = 'Done';
-                this.card.completionDate = new Date().toLocaleString();
-                this.$emit('move-card-to-completed', this.card);
-            } else if (completionPercentage > 50 && this.card.status === 'New' && this.isFirstColumnLocked) {
-                this.$emit('lock-first-column');
+            if (completionPercentage > 50 ) {
+                this.card.status = 'In process';
+                this.$emit('move-card-to-in-progress', this.card);
+                if (completionPercentage >= 100) {
+                    this.card.status = 'Done';
+                    this.card.completionDate = new Date().toLocaleString();
+                    this.$emit('move-card-to-completed', this.card);
+                }
+            }
+            else if (completionPercentage > 50 && this.card.status === 'New' && this.locked) {
             } else if (completionPercentage > 50 && this.card.status === 'New') {
                 this.$emit('move-card-to-in-progress', this.card);
             } else if (completionPercentage === 100 && this.card.status === 'In process') {
@@ -187,7 +204,15 @@ Vue.component('card', {
                 this.card.status = 'New';
             }
         }
-    }
+    },
+    watch: {
+        'card.items': {
+            deep: true,
+            handler() {
+                this.saveToLocalStorage();
+            }
+        }
+    },
 });
 
 new Vue({
