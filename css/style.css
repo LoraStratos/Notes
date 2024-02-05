@@ -34,4 +34,36 @@ header > div > h2 {
     justify-content: space-between;
     gap: 30px;
 }
-
+.colStyle {
+    background-color: rgb(99, 99, 255);
+    width: 100%;
+    padding: 10px;
+}
+.card > h3 {
+    color: white;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 12px;
+}
+.column > h2 {
+    color: white;
+}
+.btn {
+    border: solid white 1px;
+    border-radius: 3px;
+    font-size: 14px;
+    color: rgb(57, 57, 255);
+    background-color: white;
+}
+.card > ul {
+    list-style-type: none;
+}
+.card > ul > li {
+    margin-bottom: 5px;
+}
+.card > p {
+    color: white;
+}
