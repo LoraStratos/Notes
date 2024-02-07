@@ -166,8 +166,8 @@ Vue.component('card', {
       <h3>{{ card.title }}</h3>
       <ul>
         <li v-for="(item, index) in card.items" :key="index">
-          <input type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="isDesabled || card.status === 'Done' || isFirstColumnLocked">
-          <input type="text" v-model="item.text" @input="saveToLocalStorage" :disabled="isDesabled || !item.editing || card.status === 'Done' || (card.status === 'В процессе' && isFirstColumnLocked)">
+          <input type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="card.status === 'Done' || isFirstColumnLocked">
+          <input type="text" v-model="item.text" @input="saveToLocalStorage" :disabled="!item.editing || card.status === 'Done' || (card.status === 'В процессе' && isFirstColumnLocked)">
         </li>
       </ul> 
       <button class="btn" v-if="card.status !== 'Done' && !isFirstColumnLocked" @click="removeCard">Delete note</button>
