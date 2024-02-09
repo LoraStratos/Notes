@@ -45,11 +45,20 @@ header > div > h2 {
 .column {
     display: flex;
     flex-direction: column;
-    align-items: center;
     border-radius: 12px;
+    background-color: rgb(99, 99, 255);
+    width: 100%;
+    padding: 5px 20px;
 }
+.column > form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
 .column > h2 {
     color: white;
+    text-align: center;
 }
 .btn {
     border: solid white 1px;
