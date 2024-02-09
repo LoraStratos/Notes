@@ -42,20 +42,25 @@ header > div > h2 {
 .card > h3 {
     color: white;
 }
+input {
+    color: rgb(57, 57, 255);
+}
 .column {
     display: flex;
     flex-direction: column;
     border-radius: 12px;
     background-color: rgb(99, 99, 255);
     width: 100%;
-    padding: 5px 20px;
+    padding: 0 20px 20px 20px;
 }
 .column > form {
     display: flex;
     justify-content: center;
     gap: 10px;
 }
-
+.light:hover {
+    box-shadow: 0 0 5px white;
+}
 .column > h2 {
     color: white;
     text-align: center;
@@ -66,6 +71,10 @@ header > div > h2 {
     font-size: 14px;
     color: rgb(57, 57, 255);
     background-color: white;
+}
+.btn:hover {
+    cursor: pointer;
+    box-shadow: 0 0 15px white;
 }
 .card > ul {
     list-style-type: none;

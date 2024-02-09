@@ -199,7 +199,7 @@ Vue.component('card', {
       <h3>{{ card.title }}</h3>
       <ul>
         <li v-for="(item, index) in card.items" :key="index">
-          <input type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="card.locked || card.status === 'Done'">
+          <input class="light" type="checkbox" v-model="item.completed" @change="saveToLocalStorage" :disabled="card.locked || card.status === 'Done'">
           <input type="text" v-model="item.text" @input="saveToLocalStorage" :disabled="card.locked || !item.editing || card.status === 'Done'">
           <button class="btn" @click="editItem(index)" v-else-if="!item.editing && card.status !== 'Done' && !card.locked">Refactor</button>
         </li>
